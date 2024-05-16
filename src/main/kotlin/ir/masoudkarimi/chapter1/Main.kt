@@ -17,6 +17,7 @@ data class StatementData(
     val performances: List<EnrichPerformance>,
 ) {
     var totalAmount: Int by Delegates.notNull()
+    var totalVolumeCredits: Int by Delegates.notNull()
 }
 
 data class EnrichPerformance(
@@ -89,6 +90,13 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return result
     }
 
+    fun totalVolumeCredits(data: StatementData): Int {
+        var result = 0
+        for (perf in data.performances) {
+            result += perf.volumeCredits
+        }
+        return result
+    }
 
     val statementData = StatementData(
         customer = invoice.customer,
@@ -96,6 +104,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
     )
 
     statementData.totalAmount = totalAmount(statementData)
+    statementData.totalVolumeCredits = totalVolumeCredits(statementData)
 
     return renderPlainText(statementData, plays)
 }
@@ -109,20 +118,12 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
         }.format(number / 100)
     }
 
-    fun totalVolumeCredits(): Int {
-        var result = 0
-        for (perf in data.performances) {
-            result += perf.volumeCredits
-        }
-        return result
-    }
-
     var result = "Statement for ${data.customer}\n"
     for (perf in data.performances) {
         result += " ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n"
     }
 
     result += "Amount owed is ${usd(data.totalAmount)}\n"
-    result += "You earned ${totalVolumeCredits()} credits"
+    result += "You earned ${data.totalVolumeCredits} credits"
     return result
 }
