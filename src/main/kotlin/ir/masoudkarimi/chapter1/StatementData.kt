@@ -21,9 +21,14 @@ data class EnrichPerformance(
     var volumeCredits: Int by Delegates.notNull()
 }
 
+class PerformanceCalculator(
+    val performance: Performance,
+    val play: Play
+)
+
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
     fun enrichPerformance(performance: Performance): EnrichPerformance {
-        fun playFor(performance: EnrichPerformance) = plays[performance.playId]!!
+        fun playFor(performance: Performance) = plays[performance.playId]!!
 
         fun amountFor(performance: EnrichPerformance): Int {
             var result: Int
@@ -63,12 +68,15 @@ fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
             return result
         }
 
+
+        val calculator = PerformanceCalculator(performance, playFor(performance))
         val enrichPerformance = EnrichPerformance(
             playId = performance.playId,
             audience = performance.audience,
         )
 
-        enrichPerformance.play = playFor(enrichPerformance)
+
+        enrichPerformance.play = calculator.play
         enrichPerformance.amount = amountFor(enrichPerformance)
         enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
         return enrichPerformance
