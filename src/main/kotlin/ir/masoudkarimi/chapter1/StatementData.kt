@@ -21,7 +21,7 @@ data class EnrichPerformance(
     var volumeCredits: Int by Delegates.notNull()
 }
 
-class PerformanceCalculator(
+open class PerformanceCalculator(
     val performance: Performance,
     val play: Play
 ) {
@@ -66,10 +66,24 @@ class PerformanceCalculator(
 
 }
 
+class TragedyPerformanceCalculator(
+    performance: Performance,
+    play: Play
+) : PerformanceCalculator(performance, play)
+
+class ComedyPerformanceCalculator(
+    performance: Performance,
+    play: Play
+) : PerformanceCalculator(performance, play)
+
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
 
     fun createPerformanceCalculator(performance: Performance, play: Play): PerformanceCalculator {
-        return PerformanceCalculator(performance, play)
+        return when (play.type) {
+            "tragedy" -> TragedyPerformanceCalculator(performance, play)
+            "comedy" -> ComedyPerformanceCalculator(performance, play)
+            else -> throw IllegalArgumentException("Unknown type: ${play.type}")
+        }
     }
 
     fun enrichPerformance(performance: Performance): EnrichPerformance {
