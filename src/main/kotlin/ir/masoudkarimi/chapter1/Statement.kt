@@ -1,94 +1,46 @@
 package ir.masoudkarimi.ir.masoudkarimi.chapter1
 
-import kotlin.math.floor
-import kotlin.math.max
-import kotlin.properties.Delegates
+import java.text.NumberFormat
+import java.util.*
 
-data class StatementData(
-    val customer: String,
-    val performances: List<EnrichPerformance>,
-) {
-    var totalAmount: Int by Delegates.notNull()
-    var totalVolumeCredits: Int by Delegates.notNull()
+
+fun usd(number: Int): String {
+    return NumberFormat.getCurrencyInstance(Locale.US).apply {
+        minimumFractionDigits = 2
+    }.format(number / 100)
 }
 
-data class EnrichPerformance(
-    val playId: String,
-    val audience: Int,
-) {
-    var play: Play by Delegates.notNull()
-    var amount: Int by Delegates.notNull()
-    var volumeCredits: Int by Delegates.notNull()
+fun statement(invoice: Invoice, plays: Plays): String {
+    return renderPlainText(createStatementData(invoice, plays))
 }
 
-fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
-    fun enrichPerformance(performance: Performance): EnrichPerformance {
-        fun playFor(performance: EnrichPerformance) = plays[performance.playId]!!
+fun htmlStatement(invoice: Invoice, plays: Plays): String {
+    return renderHtml(createStatementData(invoice, plays))
+}
 
-        fun amountFor(performance: EnrichPerformance): Int {
-            var result: Int
+fun renderHtml(data: StatementData): String {
 
-            when (performance.play.type) {
-                "tragedy" -> {
-                    result = 40000
-                    if (performance.audience > 30) {
-                        result += 1000 * (performance.audience - 30)
-                    }
-                }
+    var result = "<h1>Statement for ${data.customer}</h1>\n"
+    result += "<table>\n"
+    result += "<tr><th>play</th><th>seats</th><th>cost</th></tr>"
+    for (perf in data.performances) {
+        result += " <tr><td>${perf.play.name}</td><td>${perf.audience}</td>"
+        result += "<td>${usd(perf.amount)}</td></tr>\n"
+    }
+    result += "</table>\n"
+    result += "<p>Amount owed is <em>${usd(data.totalAmount)}</em></p>\n"
+    result += "<p>You earned <em>${data.totalVolumeCredits}</em> credits</p>\n"
+    return result
+}
 
-                "comedy" -> {
-                    result = 30000
-                    if (performance.audience > 20) {
-                        result += 10000 + 500 * (performance.audience - 20)
-                    }
-                    result += 300 * performance.audience
-                }
+fun renderPlainText(data: StatementData): String {
 
-
-                else -> {
-                    throw Error("unknown type: ${performance.play.type}")
-                }
-            }
-
-            return result
-        }
-
-        fun volumeCreditsFor(performance: EnrichPerformance): Int {
-            var result = 0
-            result += max(performance.audience - 30, 0)
-            if (performance.play.type == "comedy") {
-                result += floor(performance.audience / 5.0).toInt()
-            }
-
-            return result
-        }
-
-        val enrichPerformance = EnrichPerformance(
-            playId = performance.playId,
-            audience = performance.audience,
-        )
-
-        enrichPerformance.play = playFor(enrichPerformance)
-        enrichPerformance.amount = amountFor(enrichPerformance)
-        enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
-        return enrichPerformance
+    var result = "Statement for ${data.customer}\n"
+    for (perf in data.performances) {
+        result += " ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n"
     }
 
-    fun totalAmount(data: StatementData): Int {
-        return data.performances.sumOf(EnrichPerformance::amount)
-    }
-
-    fun totalVolumeCredits(data: StatementData): Int {
-        return data.performances.sumOf(EnrichPerformance::volumeCredits)
-    }
-
-    val statementData = StatementData(
-        customer = invoice.customer,
-        performances = invoice.performances.map(::enrichPerformance),
-    )
-
-    statementData.totalAmount = totalAmount(statementData)
-    statementData.totalVolumeCredits = totalVolumeCredits(statementData)
-
-    return statementData
+    result += "Amount owed is ${usd(data.totalAmount)}\n"
+    result += "You earned ${data.totalVolumeCredits} credits"
+    return result
 }
