@@ -9,17 +9,17 @@ fun main() {
     }
 }
 
+fun usd(number: Int): String {
+    return NumberFormat.getCurrencyInstance(Locale.US).apply {
+        minimumFractionDigits = 2
+    }.format(number / 100)
+}
+
 fun statement(invoice: Invoice, plays: Plays): String {
     return renderPlainText(createStatementData(invoice, plays))
 }
 
 fun renderPlainText(data: StatementData): String {
-
-    fun usd(number: Int): String {
-        return NumberFormat.getCurrencyInstance(Locale.US).apply {
-            minimumFractionDigits = 2
-        }.format(number / 100)
-    }
 
     var result = "Statement for ${data.customer}\n"
     for (perf in data.performances) {
