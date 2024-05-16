@@ -24,39 +24,41 @@ data class EnrichPerformance(
 class PerformanceCalculator(
     val performance: Performance,
     val play: Play
-)
+) {
+
+    fun amount(): Int {
+        var result: Int
+
+        when (play.type) {
+            "tragedy" -> {
+                result = 40000
+                if (performance.audience > 30) {
+                    result += 1000 * (performance.audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30000
+                if (performance.audience > 20) {
+                    result += 10000 + 500 * (performance.audience - 20)
+                }
+                result += 300 * performance.audience
+            }
+
+
+            else -> {
+                throw Error("unknown type: ${play.type}")
+            }
+        }
+
+        return result
+    }
+
+}
 
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
     fun enrichPerformance(performance: Performance): EnrichPerformance {
         fun playFor(performance: Performance) = plays[performance.playId]!!
-
-        fun amountFor(performance: EnrichPerformance): Int {
-            var result: Int
-
-            when (performance.play.type) {
-                "tragedy" -> {
-                    result = 40000
-                    if (performance.audience > 30) {
-                        result += 1000 * (performance.audience - 30)
-                    }
-                }
-
-                "comedy" -> {
-                    result = 30000
-                    if (performance.audience > 20) {
-                        result += 10000 + 500 * (performance.audience - 20)
-                    }
-                    result += 300 * performance.audience
-                }
-
-
-                else -> {
-                    throw Error("unknown type: ${performance.play.type}")
-                }
-            }
-
-            return result
-        }
 
         fun volumeCreditsFor(performance: EnrichPerformance): Int {
             var result = 0
@@ -77,7 +79,7 @@ fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
 
 
         enrichPerformance.play = calculator.play
-        enrichPerformance.amount = amountFor(enrichPerformance)
+        enrichPerformance.amount = calculator.amount()
         enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
         return enrichPerformance
     }
