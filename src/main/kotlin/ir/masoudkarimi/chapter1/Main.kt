@@ -4,6 +4,7 @@ import java.text.NumberFormat
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.properties.Delegates
 
 fun main() {
     for (invoice in invoices) {
@@ -16,25 +17,55 @@ data class StatementData(
     val performances: List<EnrichPerformance>
 )
 
-class EnrichPerformance(
-    playId: String,
-    audience: Int,
-    val play: Play
-): Performance(
-    playId,
-    audience
-)
-
+data class EnrichPerformance(
+    val playId: String,
+    val audience: Int,
+) {
+    var play: Play by Delegates.notNull()
+    var amount: Int by Delegates.notNull()
+}
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    fun playFor(performance: Performance) = plays[performance.playId]!!
-
     fun enrichPerformance(performance: Performance): EnrichPerformance {
-        return EnrichPerformance(
+        fun playFor(performance: EnrichPerformance) = plays[performance.playId]!!
+
+        fun amountFor(performance: EnrichPerformance): Int {
+            var result: Int
+
+            when (performance.play.type) {
+                "tragedy" -> {
+                    result = 40000
+                    if (performance.audience > 30) {
+                        result += 1000 * (performance.audience - 30)
+                    }
+                }
+
+                "comedy" -> {
+                    result = 30000
+                    if (performance.audience > 20) {
+                        result += 10000 + 500 * (performance.audience - 20)
+                    }
+                    result += 300 * performance.audience
+                }
+
+
+                else -> {
+                    throw Error("unknown type: ${performance.play.type}")
+                }
+            }
+
+            return result
+        }
+
+        val enrichPerformance = EnrichPerformance(
             playId = performance.playId,
             audience = performance.audience,
-            play = playFor(performance)
         )
+
+        enrichPerformance.play = playFor(enrichPerformance)
+        enrichPerformance.amount = amountFor(enrichPerformance)
+
+        return enrichPerformance
     }
 
     val statementData = StatementData(
@@ -48,38 +79,10 @@ fun statement(invoice: Invoice, plays: Plays): String {
 
 fun renderPlainText(data: StatementData, plays: Plays): String {
 
-    fun amountFor(performance: EnrichPerformance): Int {
-        var result: Int
-
-        when (performance.play.type) {
-            "tragedy" -> {
-                result = 40000
-                if (performance.audience > 30) {
-                    result += 1000 * (performance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30000
-                if (performance.audience > 20) {
-                    result += 10000 + 500 * (performance.audience - 20)
-                }
-                result += 300 * performance.audience
-            }
-
-
-            else -> {
-                throw Error("unknown type: ${performance.play.type}")
-            }
-        }
-
-        return result
-    }
-
     fun totalAmount(): Int {
         var result = 0
         for (perf in data.performances) {
-            result += amountFor(perf)
+            result += perf.amount
         }
         return result
     }
@@ -110,7 +113,7 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
 
     var result = "Statement for ${data.customer}\n"
     for (perf in data.performances) {
-        result += " ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
+        result += " ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n"
     }
 
     result += "Amount owed is ${usd(totalAmount())}\n"
