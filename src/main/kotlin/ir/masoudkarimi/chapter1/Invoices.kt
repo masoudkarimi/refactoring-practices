@@ -1,6 +1,6 @@
 package ir.masoudkarimi.ir.masoudkarimi.chapter1
 
-data class Performance(
+open class Performance(
     val playId: String,
     val audience: Int
 )

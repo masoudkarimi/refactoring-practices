@@ -13,17 +13,38 @@ fun main() {
 
 data class StatementData(
     val customer: String,
-    val performances: List<Performance>
+    val performances: List<EnrichPerformance>
 )
 
+class EnrichPerformance(
+    playId: String,
+    audience: Int,
+    val play: Play
+): Performance(
+    playId,
+    audience
+)
+
+
 fun statement(invoice: Invoice, plays: Plays): String {
+    fun playFor(performance: Performance) = plays[performance.playId]!!
+
+    fun enrichPerformance(performance: Performance): EnrichPerformance {
+        return EnrichPerformance(
+            playId = performance.playId,
+            audience = performance.audience,
+            play = playFor(performance)
+        )
+    }
+
     val statementData = StatementData(
         customer = invoice.customer,
-        performances = invoice.performances
+        performances = invoice.performances.map(::enrichPerformance)
     )
 
     return renderPlainText(statementData, plays)
 }
+
 
 fun renderPlainText(data: StatementData, plays: Plays): String {
     fun playFor(performance: Performance) = plays[performance.playId]!!
