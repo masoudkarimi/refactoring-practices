@@ -30,7 +30,7 @@ data class EnrichPerformance(
 }
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    return renderPlainText(createStatementData(invoice, plays), plays)
+    return renderPlainText(createStatementData(invoice, plays))
 }
 
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
@@ -105,7 +105,7 @@ fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
     return statementData
 }
 
-fun renderPlainText(data: StatementData, plays: Plays): String {
+fun renderPlainText(data: StatementData): String {
 
     fun usd(number: Int): String {
         return NumberFormat.getCurrencyInstance(Locale.US).apply {
