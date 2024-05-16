@@ -11,12 +11,19 @@ fun main() {
     }
 }
 
+data class StatementData(
+    val customer: String
+)
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    return renderPlainText(invoice, plays)
+    val statementData = StatementData(
+        customer = invoice.customer
+    )
+
+    return renderPlainText(statementData, invoice, plays)
 }
 
-fun renderPlainText(invoice: Invoice, plays: Plays): String {
+fun renderPlainText(data: StatementData, invoice: Invoice, plays: Plays): String {
     fun playFor(performance: Performance) = plays[performance.playId]!!
 
     fun amountFor(performance: Performance): Int {
@@ -79,7 +86,7 @@ fun renderPlainText(invoice: Invoice, plays: Plays): String {
         return result
     }
 
-    var result = "Statement for ${invoice.customer}\n"
+    var result = "Statement for ${data.customer}\n"
     for (perf in invoice.performances) {
         result += " ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
     }
