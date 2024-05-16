@@ -19,11 +19,9 @@ fun statement(invoice: Invoice, plays: Plays): String {
     val format = NumberFormat.getCurrencyInstance(Locale.US).apply {
         minimumFractionDigits = 2
     }
+
     for (perf in invoice.performances) {
-        volumeCredits += max(perf.audience - 30, 0)
-        if (playFor(perf).type == "comedy") {
-            volumeCredits += floor(perf.audience / 5.0).toInt()
-        }
+        volumeCredits += volumeCreditsFor(perf)
 
         result += " ${playFor(perf).name}: ${format.format(amountFor(perf) / 100)} (${perf.audience} seats)\n"
         totalAmount += amountFor(perf)
@@ -34,6 +32,15 @@ fun statement(invoice: Invoice, plays: Plays): String {
     return result
 }
 
+private fun volumeCreditsFor(performance: Performance): Int {
+    var result = 0
+    result += max(performance.audience - 30, 0)
+    if (playFor(performance).type == "comedy") {
+        result += floor(performance.audience / 5.0).toInt()
+    }
+
+    return result
+}
 
 private fun amountFor(performance: Performance): Int {
     var result: Int
