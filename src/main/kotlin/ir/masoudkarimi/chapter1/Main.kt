@@ -83,19 +83,11 @@ fun statement(invoice: Invoice, plays: Plays): String {
     }
 
     fun totalAmount(data: StatementData): Int {
-        var result = 0
-        for (perf in data.performances) {
-            result += perf.amount
-        }
-        return result
+        return data.performances.sumOf(EnrichPerformance::amount)
     }
 
     fun totalVolumeCredits(data: StatementData): Int {
-        var result = 0
-        for (perf in data.performances) {
-            result += perf.volumeCredits
-        }
-        return result
+        return data.performances.sumOf(EnrichPerformance::volumeCredits)
     }
 
     val statementData = StatementData(
