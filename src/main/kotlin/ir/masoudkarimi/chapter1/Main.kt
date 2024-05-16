@@ -13,7 +13,6 @@ fun main() {
 
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    var totalAmount = 0
     var result = "Statement for ${invoice.customer}\n"
 
     for (perf in invoice.performances) {
@@ -21,6 +20,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
         result += " ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
     }
 
+    var totalAmount = 0
     for (perf in invoice.performances) {
         totalAmount += amountFor(perf)
     }
