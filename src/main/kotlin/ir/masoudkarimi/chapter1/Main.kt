@@ -20,7 +20,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
         minimumFractionDigits = 2
     }
     for (perf in invoice.performances) {
-        val thisAmount = amountFor(playFor(perf), perf)
+        val thisAmount = amountFor(perf)
 
         volumeCredits += max(perf.audience - 30, 0)
         if (playFor(perf).type == "comedy") {
@@ -37,7 +37,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
 }
 
 
-private fun amountFor(play: Play, performance: Performance): Int {
+private fun amountFor(performance: Performance): Int {
     var result: Int
 
     when (playFor(performance).type) {
