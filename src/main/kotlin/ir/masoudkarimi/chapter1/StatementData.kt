@@ -54,22 +54,21 @@ class PerformanceCalculator(
         return result
     }
 
+    fun volumeCredits(): Int {
+        var result = 0
+        result += max(performance.audience - 30, 0)
+        if (play.type == "comedy") {
+            result += floor(performance.audience / 5.0).toInt()
+        }
+
+        return result
+    }
+
 }
 
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
     fun enrichPerformance(performance: Performance): EnrichPerformance {
         fun playFor(performance: Performance) = plays[performance.playId]!!
-
-        fun volumeCreditsFor(performance: EnrichPerformance): Int {
-            var result = 0
-            result += max(performance.audience - 30, 0)
-            if (performance.play.type == "comedy") {
-                result += floor(performance.audience / 5.0).toInt()
-            }
-
-            return result
-        }
-
 
         val calculator = PerformanceCalculator(performance, playFor(performance))
         val enrichPerformance = EnrichPerformance(
@@ -80,7 +79,7 @@ fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
 
         enrichPerformance.play = calculator.play
         enrichPerformance.amount = calculator.amount()
-        enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
+        enrichPerformance.volumeCredits = calculator.volumeCredits()
         return enrichPerformance
     }
 
