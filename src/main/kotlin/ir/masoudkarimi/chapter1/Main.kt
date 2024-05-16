@@ -14,8 +14,10 @@ fun main() {
 
 data class StatementData(
     val customer: String,
-    val performances: List<EnrichPerformance>
-)
+    val performances: List<EnrichPerformance>,
+) {
+    var totalAmount: Int by Delegates.notNull()
+}
 
 data class EnrichPerformance(
     val playId: String,
@@ -76,28 +78,30 @@ fun statement(invoice: Invoice, plays: Plays): String {
         enrichPerformance.play = playFor(enrichPerformance)
         enrichPerformance.amount = amountFor(enrichPerformance)
         enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
-
         return enrichPerformance
     }
 
-    val statementData = StatementData(
-        customer = invoice.customer,
-        performances = invoice.performances.map(::enrichPerformance)
-    )
-
-    return renderPlainText(statementData, plays)
-}
-
-
-fun renderPlainText(data: StatementData, plays: Plays): String {
-
-    fun totalAmount(): Int {
+    fun totalAmount(data: StatementData): Int {
         var result = 0
         for (perf in data.performances) {
             result += perf.amount
         }
         return result
     }
+
+
+    val statementData = StatementData(
+        customer = invoice.customer,
+        performances = invoice.performances.map(::enrichPerformance),
+    )
+
+    statementData.totalAmount = totalAmount(statementData)
+
+    return renderPlainText(statementData, plays)
+}
+
+
+fun renderPlainText(data: StatementData, plays: Plays): String {
 
     fun usd(number: Int): String {
         return NumberFormat.getCurrencyInstance(Locale.US).apply {
@@ -118,7 +122,7 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
         result += " ${perf.play.name}: ${usd(perf.amount)} (${perf.audience} seats)\n"
     }
 
-    result += "Amount owed is ${usd(totalAmount())}\n"
+    result += "Amount owed is ${usd(data.totalAmount)}\n"
     result += "You earned ${totalVolumeCredits()} credits"
     return result
 }
