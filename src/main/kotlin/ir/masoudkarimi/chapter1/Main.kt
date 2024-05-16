@@ -21,28 +21,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
     }
     for (perf in invoice.performances) {
         val play: Play = plays[perf.playId]!!
-        var thisAmount : Int
-        when (play.type) {
-            "tragedy" -> {
-                thisAmount = 40000
-                if (perf.audience > 30) {
-                    thisAmount += 1000 * (perf.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                thisAmount = 30000
-                if (perf.audience > 20) {
-                    thisAmount += 10000 + 500 * (perf.audience - 20)
-                }
-                thisAmount += 300 * perf.audience
-            }
-
-
-            else -> {
-                throw Error("unknown type: ${play.type}")
-            }
-        }
+        val thisAmount = amountFor(play, perf)
 
         volumeCredits += max(perf.audience - 30, 0)
         if (play.type == "comedy") {
@@ -56,4 +35,32 @@ fun statement(invoice: Invoice, plays: Plays): String {
     result += "Amount owed is ${format.format(totalAmount / 100)}\n"
     result += "You earned $volumeCredits credits"
     return result
+}
+
+private fun amountFor(play: Play, perf: Performance): Int {
+    var thisAmount: Int
+
+    when (play.type) {
+        "tragedy" -> {
+            thisAmount = 40000
+            if (perf.audience > 30) {
+                thisAmount += 1000 * (perf.audience - 30)
+            }
+        }
+
+        "comedy" -> {
+            thisAmount = 30000
+            if (perf.audience > 20) {
+                thisAmount += 10000 + 500 * (perf.audience - 20)
+            }
+            thisAmount += 300 * perf.audience
+        }
+
+
+        else -> {
+            throw Error("unknown type: ${play.type}")
+        }
+    }
+
+    return thisAmount
 }
