@@ -26,32 +26,8 @@ open class PerformanceCalculator(
     val play: Play
 ) {
 
-    fun amount(): Int {
-        var result: Int
-
-        when (play.type) {
-            "tragedy" -> {
-                result = 40000
-                if (performance.audience > 30) {
-                    result += 1000 * (performance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30000
-                if (performance.audience > 20) {
-                    result += 10000 + 500 * (performance.audience - 20)
-                }
-                result += 300 * performance.audience
-            }
-
-
-            else -> {
-                throw Error("unknown type: ${play.type}")
-            }
-        }
-
-        return result
+    open fun amount(): Int {
+        throw IllegalStateException("Subclass responsibility!")
     }
 
     fun volumeCredits(): Int {
@@ -69,12 +45,32 @@ open class PerformanceCalculator(
 class TragedyPerformanceCalculator(
     performance: Performance,
     play: Play
-) : PerformanceCalculator(performance, play)
+) : PerformanceCalculator(performance, play) {
+
+    override fun amount(): Int {
+        var result = 40000
+        if (performance.audience > 30) {
+            result += 1000 * (performance.audience - 30)
+        }
+
+        return result
+    }
+}
 
 class ComedyPerformanceCalculator(
     performance: Performance,
     play: Play
-) : PerformanceCalculator(performance, play)
+) : PerformanceCalculator(performance, play) {
+
+    override fun amount(): Int {
+        var result = 30000
+        if (performance.audience > 20) {
+            result += 10000 + 500 * (performance.audience - 20)
+        }
+        result += 300 * performance.audience
+        return result
+    }
+}
 
 fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
 
