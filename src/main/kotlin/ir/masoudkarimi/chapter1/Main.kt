@@ -47,12 +47,11 @@ fun statement(invoice: Invoice, plays: Plays): String {
 
 
 fun renderPlainText(data: StatementData, plays: Plays): String {
-    fun playFor(performance: Performance) = plays[performance.playId]!!
 
-    fun amountFor(performance: Performance): Int {
+    fun amountFor(performance: EnrichPerformance): Int {
         var result: Int
 
-        when (playFor(performance).type) {
+        when (performance.play.type) {
             "tragedy" -> {
                 result = 40000
                 if (performance.audience > 30) {
@@ -70,7 +69,7 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
 
 
             else -> {
-                throw Error("unknown type: ${playFor(performance).type}")
+                throw Error("unknown type: ${performance.play.type}")
             }
         }
 
@@ -91,10 +90,10 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
         }.format(number / 100)
     }
 
-    fun volumeCreditsFor(performance: Performance): Int {
+    fun volumeCreditsFor(performance: EnrichPerformance): Int {
         var result = 0
         result += max(performance.audience - 30, 0)
-        if (playFor(performance).type == "comedy") {
+        if (performance.play.type == "comedy") {
             result += floor(performance.audience / 5.0).toInt()
         }
 
@@ -111,7 +110,7 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
 
     var result = "Statement for ${data.customer}\n"
     for (perf in data.performances) {
-        result += " ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
+        result += " ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
     }
 
     result += "Amount owed is ${usd(totalAmount())}\n"
