@@ -8,7 +8,7 @@ company based on invoice data and play information. The refactoring process incl
 changes do not break existing functionality and applying various refactoring techniques to improve the code's structure 
 and readability.
 
-## Initial Code
+## [Initial Code - branch chapter1-start](https://github.com/masoudkarimi/refactoring-practices/tree/chapter1-start)
 
 The initial implementation of the `statement` function calculates the total amount and volume credits for each 
 performance in an invoice, formats the results into a string, and returns the statement. Here is the original code:
@@ -55,7 +55,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
 }
 ```
 
-## Refactored Code
+## [Refactored Code - branch chapter1-end](https://github.com/masoudkarimi/refactoring-practices/tree/chapter1-end)
 
 The refactored version of the code utilizes various refactoring techniques such as Function Extraction, Inline Variable, Split Loop, Replace Loop with Pipeline, and Replace Conditional with Polymorphism. Here are the key changes:
 
