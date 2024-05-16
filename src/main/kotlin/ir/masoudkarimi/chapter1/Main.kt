@@ -20,15 +20,13 @@ fun statement(invoice: Invoice, plays: Plays): String {
         minimumFractionDigits = 2
     }
     for (perf in invoice.performances) {
-        val thisAmount = amountFor(perf)
-
         volumeCredits += max(perf.audience - 30, 0)
         if (playFor(perf).type == "comedy") {
             volumeCredits += floor(perf.audience / 5.0).toInt()
         }
 
-        result += " ${playFor(perf).name}: ${format.format(thisAmount / 100)} (${perf.audience} seats)\n"
-        totalAmount += thisAmount
+        result += " ${playFor(perf).name}: ${format.format(amountFor(perf) / 100)} (${perf.audience} seats)\n"
+        totalAmount += amountFor(perf)
     }
 
     result += "Amount owed is ${format.format(totalAmount / 100)}\n"
