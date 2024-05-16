@@ -23,6 +23,7 @@ data class EnrichPerformance(
 ) {
     var play: Play by Delegates.notNull()
     var amount: Int by Delegates.notNull()
+    var volumeCredits: Int by Delegates.notNull()
 }
 
 fun statement(invoice: Invoice, plays: Plays): String {
@@ -57,6 +58,16 @@ fun statement(invoice: Invoice, plays: Plays): String {
             return result
         }
 
+        fun volumeCreditsFor(performance: EnrichPerformance): Int {
+            var result = 0
+            result += max(performance.audience - 30, 0)
+            if (performance.play.type == "comedy") {
+                result += floor(performance.audience / 5.0).toInt()
+            }
+
+            return result
+        }
+
         val enrichPerformance = EnrichPerformance(
             playId = performance.playId,
             audience = performance.audience,
@@ -64,6 +75,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
 
         enrichPerformance.play = playFor(enrichPerformance)
         enrichPerformance.amount = amountFor(enrichPerformance)
+        enrichPerformance.volumeCredits = volumeCreditsFor(enrichPerformance)
 
         return enrichPerformance
     }
@@ -93,20 +105,10 @@ fun renderPlainText(data: StatementData, plays: Plays): String {
         }.format(number / 100)
     }
 
-    fun volumeCreditsFor(performance: EnrichPerformance): Int {
-        var result = 0
-        result += max(performance.audience - 30, 0)
-        if (performance.play.type == "comedy") {
-            result += floor(performance.audience / 5.0).toInt()
-        }
-
-        return result
-    }
-
     fun totalVolumeCredits(): Int {
         var result = 0
         for (perf in data.performances) {
-            result += volumeCreditsFor(perf)
+            result += perf.volumeCredits
         }
         return result
     }
