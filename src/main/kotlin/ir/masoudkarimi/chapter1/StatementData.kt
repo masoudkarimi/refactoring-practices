@@ -30,14 +30,8 @@ open class PerformanceCalculator(
         throw IllegalStateException("Subclass responsibility!")
     }
 
-    fun volumeCredits(): Int {
-        var result = 0
-        result += max(performance.audience - 30, 0)
-        if (play.type == "comedy") {
-            result += floor(performance.audience / 5.0).toInt()
-        }
-
-        return result
+    open fun volumeCredits(): Int {
+        return max(performance.audience - 30, 0)
     }
 
 }
@@ -69,6 +63,10 @@ class ComedyPerformanceCalculator(
         }
         result += 300 * performance.audience
         return result
+    }
+
+    override fun volumeCredits(): Int {
+        return super.volumeCredits() + floor(performance.audience / 5.0).toInt()
     }
 }
 
