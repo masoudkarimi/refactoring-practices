@@ -20,7 +20,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
         minimumFractionDigits = 2
     }
     for (perf in invoice.performances) {
-        val play: Play = plays[perf.playId]!!
+        val play: Play = playFor(perf)
         val thisAmount = amountFor(play, perf)
 
         volumeCredits += max(perf.audience - 30, 0)
@@ -36,6 +36,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
     result += "You earned $volumeCredits credits"
     return result
 }
+
 
 private fun amountFor(play: Play, performance: Performance): Int {
     var result: Int
@@ -64,3 +65,5 @@ private fun amountFor(play: Play, performance: Performance): Int {
 
     return result
 }
+
+private fun playFor(performance: Performance) = plays[performance.playId]!!
