@@ -13,6 +13,10 @@ fun main() {
 
 
 fun statement(invoice: Invoice, plays: Plays): String {
+    return renderPlainText(invoice, plays)
+}
+
+fun renderPlainText(invoice: Invoice, plays: Plays): String {
     fun playFor(performance: Performance) = plays[performance.playId]!!
 
     fun amountFor(performance: Performance): Int {
