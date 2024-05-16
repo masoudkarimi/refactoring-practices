@@ -19,6 +19,9 @@ fun statement(invoice: Invoice, plays: Plays): String {
     for (perf in invoice.performances) {
 
         result += " ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience} seats)\n"
+    }
+
+    for (perf in invoice.performances) {
         totalAmount += amountFor(perf)
     }
 
