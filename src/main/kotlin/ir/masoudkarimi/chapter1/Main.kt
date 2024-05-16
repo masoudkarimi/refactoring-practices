@@ -16,20 +16,23 @@ fun statement(invoice: Invoice, plays: Plays): String {
     var totalAmount = 0
     var volumeCredits = 0
     var result = "Statement for ${invoice.customer}\n"
-    val format = NumberFormat.getCurrencyInstance(Locale.US).apply {
-        minimumFractionDigits = 2
-    }
 
     for (perf in invoice.performances) {
         volumeCredits += volumeCreditsFor(perf)
 
-        result += " ${playFor(perf).name}: ${format.format(amountFor(perf) / 100)} (${perf.audience} seats)\n"
+        result += " ${playFor(perf).name}: ${usd(amountFor(perf) / 100)} (${perf.audience} seats)\n"
         totalAmount += amountFor(perf)
     }
 
-    result += "Amount owed is ${format.format(totalAmount / 100)}\n"
+    result += "Amount owed is ${usd(totalAmount / 100)}\n"
     result += "You earned $volumeCredits credits"
     return result
+}
+
+private fun usd(number: Int): String {
+    return NumberFormat.getCurrencyInstance(Locale.US).apply {
+        minimumFractionDigits = 2
+    }.format(number)
 }
 
 private fun volumeCreditsFor(performance: Performance): Int {
