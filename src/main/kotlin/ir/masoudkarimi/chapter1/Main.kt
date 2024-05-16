@@ -40,7 +40,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
 private fun amountFor(play: Play, performance: Performance): Int {
     var result: Int
 
-    when (play.type) {
+    when (playFor(performance).type) {
         "tragedy" -> {
             result = 40000
             if (performance.audience > 30) {
@@ -58,7 +58,7 @@ private fun amountFor(play: Play, performance: Performance): Int {
 
 
         else -> {
-            throw Error("unknown type: ${play.type}")
+            throw Error("unknown type: ${playFor(performance).type}")
         }
     }
 
