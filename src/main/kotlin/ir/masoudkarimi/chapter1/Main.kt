@@ -30,6 +30,10 @@ data class EnrichPerformance(
 }
 
 fun statement(invoice: Invoice, plays: Plays): String {
+    return renderPlainText(createStatementData(invoice, plays), plays)
+}
+
+fun createStatementData(invoice: Invoice, plays: Plays): StatementData {
     fun enrichPerformance(performance: Performance): EnrichPerformance {
         fun playFor(performance: EnrichPerformance) = plays[performance.playId]!!
 
@@ -98,9 +102,8 @@ fun statement(invoice: Invoice, plays: Plays): String {
     statementData.totalAmount = totalAmount(statementData)
     statementData.totalVolumeCredits = totalVolumeCredits(statementData)
 
-    return renderPlainText(statementData, plays)
+    return statementData
 }
-
 
 fun renderPlainText(data: StatementData, plays: Plays): String {
 
